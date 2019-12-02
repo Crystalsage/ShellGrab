@@ -1,5 +1,5 @@
 # ShellGrab
-A python-based terminal shellcode retriever. Uses shellstorm API for searching the database and requests module for grabbing the shellcode from the database.
+A python-based shellcode retriever. Uses shellstorm API for searching the database and requests module for grabbing the shellcode from the database.
 
 ## Example
 
