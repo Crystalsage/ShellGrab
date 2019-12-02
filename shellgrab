@@ -42,9 +42,6 @@ def sort_shellcode(shellcode):
 	
 	return urldict
 
-
-
-
 def print_shellcode(author,platform,title,url,count):
 	if not bothrequested:
 		print(
@@ -54,7 +51,6 @@ def print_shellcode(author,platform,title,url,count):
 			colored(author,'blue',attrs=['bold']),
 			'\n\t',
 			colored(url,'white',attrs=['bold']),'\n\n')
-
 
 def same(urldict):
 	shellcode_num=int(args.grab)
@@ -91,7 +87,3 @@ if __name__=="__main__":
 
 	elif args.grab:
 		print("Please request both at once.")
-
-		
-
-
