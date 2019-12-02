@@ -1,0 +1,97 @@
+#!/usr/bin/python3
+
+import requests
+import sys
+import argparse
+from termcolor import colored
+from html import unescape
+from bs4 import BeautifulSoup
+
+parser=argparse.ArgumentParser("Shellcode Grabber",usage='./shellgrab -s <search_term> -g <number>')
+parser.add_argument("-s","--search",help="Search shellcode",metavar='')
+parser.add_argument("-g","--grab",help="Grab Shellcode; Use the number that prints beside shellcode title when searched.",metavar='')
+parser.add_argument("-o","--outputfile",help="Output Shellcode to a file",metavar='')
+args=parser.parse_args()
+
+
+def search_shellcode(keyword):
+	api_url=f"http://shell-storm.org/api/?s={keyword}"
+	request_shellcode=requests.get(api_url)
+	shellcode=unescape(str(request_shellcode.text))
+	urls=sort_shellcode(shellcode)
+	if bothrequested:
+		same(urls)
+	
+
+def sort_shellcode(shellcode):
+	if not bothrequested:
+		print(colored('\n\nAvailable Shellcodes:\n ','red',attrs=['bold']))
+	sorted=shellcode.split('\n')
+	urldict={}
+	for code_info in sorted:
+		if code_info!='':
+			data=code_info.split('::::')
+			author=data[0]						# I too, am extraordinarily humble
+			platform=data[1]
+			title=data[2]
+			url=data[4]
+			count=sorted.index(code_info)+1
+			if not bothrequested:
+				print_shellcode(author,platform,title,url,count)
+			urldict[count]=url
+	
+	return urldict
+
+
+
+
+def print_shellcode(author,platform,title,url,count):
+	if not bothrequested:
+		print(
+			colored(str(count)+'.','white',attrs=['bold']),
+			colored(title,'green',attrs=['bold']),
+			'by',
+			colored(author,'blue',attrs=['bold']),
+			'\n\t',
+			colored(url,'white',attrs=['bold']),'\n\n')
+
+
+def same(urldict):
+	shellcode_num=int(args.grab)
+	request_shellcode(urldict[shellcode_num])
+
+		
+def request_shellcode(url):
+	shellcode_request=requests.get(url)
+	shellcode=shellcode_request.text
+	soup=BeautifulSoup(shellcode,'lxml')
+	for script in soup(["script","style"]):           #Removes the extra JS,HTML stuff that comes along
+		script.decompose()
+
+	text=soup.get_text()
+
+	print("\n\n"+text.strip("\n")+"\n\n")
+
+	if args.outputfile:
+		open(args.outputfile,'w').write("\n\n"+text.strip("\n")+"\n\n")
+	
+
+if __name__=="__main__":
+
+	if not len(sys.argv)>1:
+		parser.print_help(sys.stderr)
+
+	if args.grab and args.search:
+		bothrequested=1
+		search_shellcode(args.search)
+
+	elif args.search:
+		bothrequested=0
+		search_shellcode(args.search)
+
+	elif args.grab:
+		print("Please request both at once.")
+
+		
+
+
